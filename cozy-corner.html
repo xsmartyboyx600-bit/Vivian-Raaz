@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cozy Corner ☕</title>
+<style>
+:root{--bg:#2b1d16;--card:#3b2a20;--ink:#f6e7d3;--soft:#c9ad8f;--accent:#e8985a;box-sizing:border-box}
+[data-theme=forest]{--bg:#16261e;--card:#1f372a;--ink:#e4f1e0;--soft:#9cbf9f;--accent:#8fd18f}
+[data-theme=dusk]{--bg:#231c35;--card:#31284a;--ink:#efe6ff;--soft:#b3a3d6;--accent:#f09bd0}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;transition:background .6s}
+body{padding:24px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+header{text-align:center;margin-bottom:22px}
+h1{margin:0;font-weight:normal;font-size:clamp(1.8rem,6vw,2.6rem)}
+header p{margin:6px 0 14px;color:var(--soft)}
+.themes button{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);margin:0 4px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:980px;margin:0 auto}
+.card{background:var(--card);border-radius:18px;padding:18px;box-shadow:0 6px 18px #0005;min-height:200px;display:flex;flex-direction:column;gap:10px}
+.card h2{margin:0;font-size:1.15rem;font-weight:normal}
+.card p{margin:0;color:var(--soft);font-size:.95rem}
+.btn{background:var(--accent);color:#2b1d16;border:0;border-radius:999px;padding:9px 18px;font:inherit;cursor:pointer;align-self:flex-start}
+.btn.alt{background:none;color:var(--ink);border:1px solid var(--soft)}
+textarea{flex:1;min-height:110px;background:#0003;color:var(--ink);border:1px solid var(--soft);border-radius:10px;padding:10px;font:inherit;resize:vertical}
+.big{font-size:2.4rem;text-align:center;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+/* fire */
+.fire{position:relative;height:90px;display:flex;justify-content:center;align-items:flex-end;gap:4px}
+.fire i{display:block;width:26px;border-radius:50% 50% 50% 50%/70% 70% 30% 30%;background:linear-gradient(#ffd36b,#ff7a1a 60%,#c2300a);transform-origin:bottom;animation:fl 1s ease-in-out infinite alternate}
+.fire i:nth-child(1){height:50px;animation-delay:-.3s}.fire i:nth-child(2){height:80px}.fire i:nth-child(3){height:60px;animation-delay:-.6s}
+.fire.off i{animation:none;height:6px;background:#555}
+@keyframes fl{from{transform:scale(1,.88) rotate(-3deg)}to{transform:scale(.92,1.08) rotate(3deg)}}
+/* candle */
+.candle{display:flex;flex-direction:column;align-items:center;margin:auto}
+.flame{width:14px;height:24px;border-radius:50% 50% 50% 50%/70% 70% 30% 30%;background:linear-gradient(#fff2a8,#ff9a2a);animation:fl .5s infinite alternate;box-shadow:0 0 26px 8px #ff9a2a77}
+.wax{width:34px;height:60px;background:#f3e6cf;border-radius:4px}
+.candle.out .flame{display:none}
+/* overlays */
+#dark{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:20;transition:opacity 1.6s}
+#dark.on{opacity:1;pointer-events:auto}
+#scare{position:fixed;inset:0;background:#000;display:none;z-index:30}
+#scare svg{width:100%;height:100%;animation:zoom .2s ease-out forwards,shake .07s infinite}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:40}
+#flash.go{animation:flash .35s steps(2) 2}
+#gotcha{position:fixed;inset:0;display:none;z-index:50;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;gap:14px}
+@keyframes zoom{from{transform:scale(.2)}to{transform:scale(1.15)}}
+@keyframes shake{0%{translate:-12px 8px}25%{translate:10px -10px}50%{translate:-8px -6px}75%{translate:12px 10px}100%{translate:-10px 6px}}
+@keyframes flash{0%{opacity:1}50%{opacity:0}}
+</style>
+</head>
+<body data-theme="warm">
+
+<header>
+  <h1>☕ WELCOME DEAR!</h1>
+  <Pre><p>Grab a blanket. Pick something. Stay a while.</p></Pre>
+  <div class="themes" aria-label="Themes">
+    <button style="background:#e8985a" data-t="warm" title="Warm"></button>
+    <button style="background:#8fd18f" data-t="forest" title="Forest"></button>
+    <button style="background:#f09bd0" data-t="dusk" title="Dusk"></button>
+  </div>
+</header>
+
+<main class="grid">
+  <section class="card">
+    <h2>🔥 Fireplace</h2>
+    <div class="fire" id="fire"><i></i><i></i><i></i></div>
+    <button class="btn" id="fireBtn">Put out / Light</button>
+  </section>
+
+  <section class="card">
+    <h2>🌧️ Rain Sound</h2>
+    <p>Soft rain sounds, nothing else.</p>
+    <button class="btn" id="rainBtn">Start rain</button>
+  </section>
+
+  <section class="card">
+    <h2>🍵 Tea break timer</h2>
+    <div class="big" id="tea">05:00</div>
+    <div class="row">
+      <button class="btn alt" data-m="3">3 min</button>
+      <button class="btn alt" data-m="5">5 min</button>
+      <button class="btn alt" data-m="10">10 min</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📝 Little notes</h2>
+    <textarea placeholder="Write something gentle…"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>💌 A kind word</h2>
+    <p id="kind">Press the button for a warm message.</p>
+    <button class="btn" id="kindBtn">Give me one</button>
+  </section>
+
+  <section class="card">
+    <h2>🕯️ Night candle 404!!</h2>
+    <div class="candle" id="candle"><div class="flame"></div><div class="wax"></div></div>
+    <button class="btn" id="candleBtn">Blow it out</button>
+  </section>
+
+  <section class="card">
+    <h2>🎲 Dare picker</h2>
+    <p id="pick">Can’t decide what to do tonight?</p>
+    <button class="btn" id="pickBtn">Decide for me</button>
+  </section>
+
+  <section class="card">
+    <h2>🫧 Breathe</h2>
+    <p id="breath">In… and out. Press to start.</p>
+    <button class="btn" id="breathBtn">Begin</button>
+  </section>
+</main>
+
+<div id="dark"></div>
+<div id="scare">
+  <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" aria-label="A screaming face">
+    <rect width="400" height="400" fill="#120000"/>
+    <ellipse cx="200" cy="210" rx="130" ry="170" fill="#d8d3c4" stroke="#000" stroke-width="6"/>
+    <path d="M110 150 Q150 100 180 150 Q150 190 110 150Z" fill="#000"/>
+    <path d="M290 150 Q250 100 220 150 Q250 190 290 150Z" fill="#000"/>
+    <circle cx="150" cy="152" r="9" fill="#f00"/><circle cx="250" cy="152" r="9" fill="#f00"/>
+    <path d="M198 175 L186 235 L214 235Z" fill="#000" opacity=".55"/>
+    <path d="M120 275 Q200 420 280 275 Q200 300 120 275Z" fill="#000"/>
+    <g fill="#d8d3c4"><path d="M130 280 L142 308 L154 284Z"/><path d="M160 286 L172 318 L184 290Z"/><path d="M216 290 L228 318 L240 286Z"/><path d="M246 284 L258 308 L270 280Z"/></g>
+  </svg>
+</div>
+<div id="flash"></div>
+<div id="gotcha">
+  <h1>😈 Gotcha!</h1>
+  <p>It was just a prank. Hope your heart is still in one piece.</p>
+  <button class="btn" id="back">Back to the cozy</button>
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var ctx, rain, armed=false, scared=false, arm;
+
+  function audio(){
+    try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();}catch(e){}
+  }
+  function noise(sec){
+    var len=ctx.sampleRate*sec,b=ctx.createBuffer(1,len,ctx.sampleRate),d=b.getChannelData(0);
+    for(var i=0;i<len;i++)d[i]=Math.random()*2-1;
+    return b;
+  }
+  /* hidden prank: starts counting after the first click anywhere */
+  document.addEventListener('click',function(){
+    audio();
+    if(!armed&&!scared){armed=true;arm=setTimeout(boo,25000+Math.random()*30000);}
+  });
+
+  function boo(){
+    if(scared)return;
+    scared=true;clearTimeout(arm);
+    if(rain){try{rain.stop()}catch(e){}rain=null;}
+    $('dark').classList.remove('on');
+    $('scare').style.display='block';
+    var f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');
+    try{
+      audio();var t=ctx.currentTime,g=ctx.createGain();
+      g.gain.setValueAtTime(1,t);g.gain.exponentialRampToValueAtTime(.001,t+1.6);g.connect(ctx.destination);
+      [330,523,740].forEach(function(fr){var o=ctx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(fr,t);o.frequency.linearRampToValueAtTime(fr*1.8,t+1.2);o.connect(g);o.start(t);o.stop(t+1.6);});
+      var n=ctx.createBufferSource();n.buffer=noise(1.2);n.connect(g);n.start(t);
+    }catch(e){}
+    if(navigator.vibrate)navigator.vibrate([200,50,300]);
+    setTimeout(function(){$('scare').style.display='none';$('gotcha').style.display='flex';},2200);
+  }
+  $('back').onclick=function(){$('gotcha').style.display='none';$('candle').classList.remove('out');$('candleBtn').textContent='Blow it out';scared=false;armed=false;};
+
+  /* themes */
+  document.querySelectorAll('[data-t]').forEach(function(b){b.onclick=function(){document.body.dataset.theme=b.dataset.t;};});
+
+  /* fireplace */
+  $('fireBtn').onclick=function(){$('fire').classList.toggle('off');};
+
+  /* rain */
+  $('rainBtn').onclick=function(){
+    audio();if(!ctx)return;
+    if(rain){rain.stop();rain=null;this.textContent='Start rain';return;}
+    var s=ctx.createBufferSource();s.buffer=noise(3);s.loop=true;
+    var lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;
+    var g=ctx.createGain();g.gain.value=.25;
+    s.connect(lp);lp.connect(g);g.connect(ctx.destination);s.start();rain=s;this.textContent='Stop rain';
+  };
+
+  /* tea timer */
+  var tt;
+  document.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){
+    clearInterval(tt);var end=Date.now()+b.dataset.m*60000;
+    function tick(){var r=Math.max(0,Math.round((end-Date.now())/1000));
+      $('tea').textContent=r?('0'+Math.floor(r/60)).slice(-2)+':'+('0'+r%60).slice(-2):'Ready ☕';
+      if(!r)clearInterval(tt);}
+    tick();tt=setInterval(tick,500);
+  };});
+
+  /* kind words */
+  var kind=['You’re doing better than you think.','Rest is productive too.','Someone is glad you exist.','Small steps still count.','Today is allowed to be slow.','You deserve a warm drink and a quiet minute.'];
+  $('kindBtn').onclick=function(){$('kind').textContent=kind[Math.floor(Math.random()*kind.length)];};
+
+  /* candle: blowing it out darkens the room, then the scare */
+  $('candleBtn').onclick=function(){
+    $('candle').classList.add('out');this.textContent='So peaceful…';
+    $('dark').classList.add('on');
+    setTimeout(boo,2600);
+  };
+
+  /* picker */
+  var picks=['Hot cocoa and a movie','Reread a favorite book','Bake something simple','Take a slow evening walk','Call someone you miss','Build a playlist and do nothing'];
+  $('pickBtn').onclick=function(){$('pick').textContent=picks[Math.floor(Math.random()*picks.length)];};
+
+  /* breathing */
+  var bt;
+  $('breathBtn').onclick=function(){
+    clearInterval(bt);var inh=true;
+    function sw(){$('breath').textContent=inh?'Breathe in… 4':'Breathe out… 6';inh=!inh;}
+    sw();bt=setInterval(sw,5000);
+  };
+})();
+</script>
+</body>
+</html>
